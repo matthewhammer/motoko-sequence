@@ -1,0 +1,6 @@
+{
+ "name": "sequence",
+  "repo": "git@github.com:matthewhammer/motoko-sequence",
+  "version": "v0.0.1",
+  "dependencies": ["base", "crud"]
+}

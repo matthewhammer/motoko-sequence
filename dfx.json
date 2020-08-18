@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "Main": {
+      "main": "service/Main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "vessel sources",
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000
+    }
+  }
+}
