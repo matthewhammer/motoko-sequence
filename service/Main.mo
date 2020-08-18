@@ -2,15 +2,12 @@
 */
 import Debug "mo:base/Debug";
 
-import Persis "../src/Persistent";
+import Sequence "../src/Sequence";
 
 actor {
       
-  // node ids, node data and edge data
-  // 
-  flexible var graph = Persis.empty<Nat, Nat, Nat>(Persis.NodeId.nat());
+  stable var seq = Sequence.empty<Nat>();
 
-  // temp
   stable var count = 0;
 
   public func doNextCall() : async Bool {
