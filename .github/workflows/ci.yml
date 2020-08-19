@@ -8,14 +8,11 @@ jobs:
   tests:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
+    - uses: actions/checkout@v1
     - name: "install dfx"
       run: |
        wget https://sdk.dfinity.org/install.sh
-       echo DFX_VERSION=0.6.0
-       yes Y | DFX_VERSION=0.6.0 sh install.sh
+       yes Y | DFX_VERSION=0.6.2 sh install.sh
        echo "::add-path::/home/runner/bin"
     - name: "dfx cache install"
       run: dfx cache install
