@@ -19,10 +19,6 @@ module {
   // See chunky list representation from [Section 5 of this POPL 1989 paper](https://dl.acm.org/doi/10.1145/75277.75305).
   //
 
-  // Iter<Level> vs Stream<Level>
-  //
-  // to do -- would be nice to have Stream<Level>, and avoid unwrapping the ? for each level
-
 
   public type Sequence<X> = {
     #branch : Branch<X>;
