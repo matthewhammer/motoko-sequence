@@ -8,32 +8,11 @@ jobs:
   tests:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-    - name: Checkout candid repo
-      uses: actions/checkout@v2
-      with:
-        repository: dfinity/candid
-    - name: Install candid tools
-      run: |
-       cd tools/didc
-       cargo install --root /home/runner --path .
-       cd ..
-       cd candiff
-       cargo install --root /home/runner --path .
-       cd ../..
-       echo "::add-path::/home/runner/bin"
-    - uses: actions/checkout@v2
-    - name: "didc help (sanity check)"
-      run: didc --help
-    - name: "candiff help (sanity check)"
-      run: candiff --help
+    - uses: actions/checkout@v1
     - name: "install dfx"
       run: |
        wget https://sdk.dfinity.org/install.sh
-       echo DFX_VERSION=0.6.0
-       yes Y | DFX_VERSION=0.6.0 sh install.sh
+       yes Y | DFX_VERSION=0.6.2 sh install.sh
        echo "::add-path::/home/runner/bin"
     - name: "dfx cache install"
       run: dfx cache install

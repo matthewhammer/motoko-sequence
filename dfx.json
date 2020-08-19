@@ -1,7 +1,7 @@
 {
   "canisters": {
     "Main": {
-      "main": "service/Main.mo"
+      "main": "test/Main.mo"
     }
   },
   "defaults": {
