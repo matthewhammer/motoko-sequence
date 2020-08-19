@@ -2,6 +2,7 @@ import Hash "mo:base/Hash";
 import Word32 "mo:base/Word32";
 import Iter "mo:base/Iter";
 import Nat32 "mo:base/Nat32";
+import Debug "mo:base/Debug";
 
 module {
   public type Stream<X> = { next : () -> X };
@@ -23,10 +24,15 @@ module {
     public type Value = Nat32;
     public func seedFrom(seed : Nat) : Stream<Value> {
       object {
-        var nextHash : Word32 = Hash.hash(seed);
+        func hash() : Word32 {
+          Hash.hash(nextNum + 1); // avoid zero (hash is also zero)
+        };
+        var nextNum : Nat = seed;
+        var nextHash : Word32 = hash();
         public func next() : Value {
           let level = Word32.bitcountTrailingZero(nextHash);
-          nextHash := Hash.hash(Word32.toNat(nextHash));
+          nextNum := nextNum + 1;
+          nextHash := hash();
           Nat32.fromNat(Word32.toNat(level));
         };
       }

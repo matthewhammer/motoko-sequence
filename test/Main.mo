@@ -7,20 +7,18 @@ import Debug "mo:base/Debug";
 actor {
 
   /// seed append function with a deterministic Bernoulli distribution
-  let append = Sequence.makeAppend<Nat>(Stream.Bernoulli.seedFrom(0));
+  let levels = Stream.Bernoulli.seedFrom(0);
+  let append = Sequence.makeAppend<Nat>(levels);
 
   public type Sequence<X> = Sequence.Sequence<X>;
   public type Buffer<X> = Buffer.Buffer<X>;
 
-  func build(x : Nat, y : Nat, z : Nat) : (Sequence<Nat>, Buffer<Nat>) {
+  func build(nats : [Nat]) : (Sequence<Nat>, Buffer<Nat>) {
     let b = Buffer.Buffer<Nat>(0);
-    b.add(x);
-    b.add(y);
-    b.add(z);
-    let s = append(
-      append(Sequence.make(x), Sequence.make(y)),
-      Sequence.make(z)
-    );
+    for (n in nats.vals()) {
+      b.add(n);
+    };
+    let s = Sequence.fromArray(nats, levels);
     (s, b)
   };
 
@@ -66,11 +64,16 @@ actor {
     Debug.print "buffer append";
     y.append(y.clone());
     assert equal(x4, y);
+
+    Debug.print "DUMP sequence and array";
+    Debug.print (debug_show x4);
+    Debug.print (debug_show y.toArray());
   };
 
   public func selfTest() {
     Debug.print "BEGIN bi-simulation of Sequence versus Buffer modules";
-    let (s0, b0) = build(1, 2, 3);
+    let (s0, b0) = build([1, 2, 3, 4, 5, 6, 7, 8,
+                          9, 10, 11, 12, 13, 14, 15, 16]);
     bisimulationTest(s0, b0);
     Debug.print "SUCCESS";
   };

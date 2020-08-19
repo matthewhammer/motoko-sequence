@@ -107,6 +107,13 @@ module {
     }
   };
 
+  public func fromArray<X>(array : [X], levels : Stream<Level>) : Sequence<X> {
+    var s : Sequence<X> = #empty;
+    for (a in array.vals()) {
+      s := appendLevel<X>(s, levels.next(), make<X>(a));
+    };
+    s
+  };
 
   public func size<X>(s : Sequence<X>) : Nat {
     switch s {
