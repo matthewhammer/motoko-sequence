@@ -25,14 +25,29 @@ actor {
   };
 
   func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
+    Debug.print "test equality:";
     let i = Sequence.iter(x, #fwd);
     let j = y.vals();
     loop {
       switch (i.next(), j.next()) {
-        case (null, null) { return true };
-        case (?x, ?y) { if (x != y) return false; };
-        case (?_, _) { return false };
-        case (_, ?_) { return false };
+        case (null, null) { 
+               Debug.print "  EQUAL.";
+               return true 
+             };
+        case (?x, ?y) {
+               if (x != y) {
+                 Debug.print "  NOT equal: distinct vals."; // to do: more info?
+                 return false; 
+               };
+             };
+        case (?_, _) { 
+               Debug.print "  NOT equal: first too long, or second too short";
+               return false 
+             };
+        case (_, ?_) {
+               Debug.print "  NOT equal: first too short, or second too long";
+               return false 
+             };
       }
     }
   };
@@ -40,12 +55,16 @@ actor {
   func bisimulationTest(x : Sequence<Nat>, y : Buffer<Nat>) {
     assert equal(x, y);
 
+    Debug.print "sequence append";
     let xx = append(x, x);
-    y.append(y);
+    Debug.print "buffer append";
+    y.append(y.clone());
     assert equal(xx, y);
 
+    Debug.print "sequence append";
     let x4 = append(xx, xx);
-    y.append(y);
+    Debug.print "buffer append";
+    y.append(y.clone());
     assert equal(x4, y);
   };
 
