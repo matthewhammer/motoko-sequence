@@ -6,16 +6,17 @@ import Debug "mo:base/Debug";
 
 actor {
 
-  let append = Sequence.defaultAppend();
-
   public type Sequence<X> = Sequence.Sequence<X>;
   public type Buffer<X> = Buffer.Buffer<X>;
+
+  let append = Sequence.defaultAppend();
 
   func build(nats : [Nat]) : (Sequence<Nat>, Buffer<Nat>) {
     let b = Buffer.Buffer<Nat>(0);
     for (n in nats.vals()) {
       b.add(n);
     };
+    let levels = Stream.Bernoulli.seedFrom(0);
     let s = Sequence.fromArray(nats, levels);
     (s, b)
   };
