@@ -64,6 +64,11 @@ module {
     append
   };
 
+  public func defaultAppend<X>() : <X>(Sequence<X>, Sequence<X>) -> Sequence<X> {
+    /// seed append function with a deterministic Bernoulli distribution
+    makeAppend<X>(Stream.Bernoulli.seedFrom(0))
+  };
+
   public func appendLevel<X>(s1 : Sequence<X>, midLev : Nat32, s2 : Sequence<X>) : Sequence<X> {
     switch (s1, s2) {
       case (#empty, s2) s2;

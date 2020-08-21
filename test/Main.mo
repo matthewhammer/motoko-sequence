@@ -6,9 +6,7 @@ import Debug "mo:base/Debug";
 
 actor {
 
-  /// seed append function with a deterministic Bernoulli distribution
-  let levels = Stream.Bernoulli.seedFrom(0);
-  let append = Sequence.makeAppend<Nat>(levels);
+  let append = Sequence.defaultAppend();
 
   public type Sequence<X> = Sequence.Sequence<X>;
   public type Buffer<X> = Buffer.Buffer<X>;
