@@ -6,18 +6,17 @@ import Debug "mo:base/Debug";
 
 actor {
 
-  /// seed append function with a deterministic Bernoulli distribution
-  let levels = Stream.Bernoulli.seedFrom(0);
-  let append = Sequence.makeAppend<Nat>(levels);
-
   public type Sequence<X> = Sequence.Sequence<X>;
   public type Buffer<X> = Buffer.Buffer<X>;
+
+  let append = Sequence.defaultAppend();
 
   func build(nats : [Nat]) : (Sequence<Nat>, Buffer<Nat>) {
     let b = Buffer.Buffer<Nat>(0);
     for (n in nats.vals()) {
       b.add(n);
     };
+    let levels = Stream.Bernoulli.seedFrom(0);
     let s = Sequence.fromArray(nats, levels);
     (s, b)
   };
