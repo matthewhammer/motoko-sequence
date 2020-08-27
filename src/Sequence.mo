@@ -172,6 +172,11 @@ module {
     }
   };
 
+  public func slice<X>(s : Sequence<X>, start : Nat, size : Nat) : Sequence<X> {
+    // to do
+    #empty
+  };
+
   public func pushBack<X>(seq : Sequence<X>, level : Level, data : X) : Sequence<X> {
     appendLevel(seq, level, make(data))
   };
@@ -188,30 +193,50 @@ module {
     appendLevel(make(data), level, seq)
   };
 
-  /// Very simple fold.
-  /// The sequence maps to a monoid via empty, leaf and branch functions.
+  /// Perform [an associative, binary operation](https://en.wikipedia.org/wiki/Monoid#Definition) over the binary tree.
   ///
-  /// See also:
-  /// - [`foldDir`](#foldDir) for directed sequential dependencies in the fold.
-  /// - [`foldMonoid`](#foldDir) for a simpler variant of this function.
-  public func foldMonoid<X, Y>(
+  /// Like monoid, but simpler (common input and output type).
+  public func binaryOp<X>(
     s : Sequence<X>,
-    empty : Y,
-    leaf : X -> Y,
-    branch : (Y, Y) -> Y
-  ) : Y {
+    zero : X,
+    bop : (X, X) -> X
+  ) : X {
     switch s {
-      case (#empty) { empty };
-      case (#leaf(x)) { leaf(x) };
+      case (#empty) { zero };
+      case (#leaf(x)) { x };
       case (#branch(b)) {
-             branch(foldMonoid(b.left, empty, leaf, branch),
-                    foldMonoid(b.right, empty, leaf, branch)
+             bop( binaryOp(b.left, zero, bop),
+                  binaryOp(b.right, zero, bop)
              )
            };
     }
   };
 
-  /// Like foldMonoid, except that branch function gets full branch node info
+  /// Transform sequence into [monoid structure](https://en.wikipedia.org/wiki/Monoid#Definition)
+  ///
+  /// The monoid's id element stands in for empty sequences.
+  ///
+  /// The leaf function maps a leaf element to a monoid element.
+  ///
+  /// The function binOp gives the monoid's binary operation over elements.
+  public func monoid<X, Y>(
+    s : Sequence<X>,
+    id : Y,
+    leaf : X -> Y,
+    binOp : (Y, Y) -> Y
+  ) : Y {
+    switch s {
+      case (#empty) { id };
+      case (#leaf(x)) { leaf(x) };
+      case (#branch(b)) {
+             binOp(monoid(b.left, id, leaf, binOp),
+                   monoid(b.right, id, leaf, binOp)
+             )
+           };
+    }
+  };
+
+  /// Like monoid, except that branch function gets full branch node info
   public func foldUp<X, Y>(
     s : Sequence<X>,
     empty : Y,

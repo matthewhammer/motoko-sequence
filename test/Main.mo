@@ -23,11 +23,11 @@ actor {
   };
 
   func sum(x : Sequence<Nat>) : Nat {
-    Sequence.foldMonoid(x, 0, func(x : Nat) : Nat { x }, Nat.add);
+    Sequence.binaryOp(x, 0, Nat.add);
   };
 
   func min(x : Sequence<Nat>) : Nat {
-    Sequence.foldMonoid(x, 0, func(x : Nat) : Nat { x }, Nat.min);
+    Sequence.binaryOp(x, 0, Nat.min);
   };
 
   /// Returns the maximum value, or null if:
@@ -36,7 +36,7 @@ actor {
   ///
   /// E.g., Consider `?Nat` to be encoding `Nat` with special element (`null`), representing "bottom".
   func max(x : Sequence<?Nat>) : ?Nat {
-    Sequence.foldMonoid(
+    Sequence.monoid(
       x,
       null,
       func(x : ?Nat) : ?Nat { x },
