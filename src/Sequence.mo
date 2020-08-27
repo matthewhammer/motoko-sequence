@@ -173,7 +173,7 @@ module {
   };
 
   public func slice<X>(s : Sequence<X>, start : Nat, size : Nat) : (Sequence<X>, Sequence<X>, Sequence<X>) {
-    let (s1, s23) = split(s, start + size);
+    let (s1, s23) = split(s, start);
     let (s2, s3) = split(s23, size);
     (s1, s2, s3)
   };
