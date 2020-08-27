@@ -3,6 +3,7 @@ import Stream "../src/Stream";
 
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
+import Nat "mo:base/Nat";
 
 actor {
 
@@ -21,29 +22,57 @@ actor {
     (s, b)
   };
 
+  func sum(x : Sequence<Nat>) : Nat {
+    Sequence.foldMonoid(x, 0, func(x : Nat) : Nat { x }, Nat.add);
+  };
+
+  func min(x : Sequence<Nat>) : Nat {
+    Sequence.foldMonoid(x, 0, func(x : Nat) : Nat { x }, Nat.min);
+  };
+
+  /// Returns the maximum value, or null if:
+  /// - The sequence is empty.
+  //  - The sequence contains a null value.
+  ///
+  /// E.g., Consider `?Nat` to be encoding `Nat` with special element (`null`), representing "bottom".
+  func max(x : Sequence<?Nat>) : ?Nat {
+    Sequence.foldMonoid(
+      x,
+      null,
+      func(x : ?Nat) : ?Nat { x },
+      func (x : ?Nat, y : ?Nat) : ?Nat {
+        switch (x, y) {
+        case (null, _) null;
+        case (_, null) null;
+        case (?x, ?y) ?Nat.max(x, y)
+        }
+      }
+    )
+  };
+
   func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
     Debug.print "test equality:";
     let i = Sequence.iter(x, #fwd);
     let j = y.vals();
     loop {
       switch (i.next(), j.next()) {
-        case (null, null) { 
+        case (null, null) {
                Debug.print "  EQUAL.";
-               return true 
+               return true
              };
         case (?x, ?y) {
                if (x != y) {
                  Debug.print "  NOT equal: distinct vals."; // to do: more info?
-                 return false; 
+                 return false;
                };
              };
-        case (?_, _) { 
+        case (?_, _) {
                Debug.print "  NOT equal: first too long, or second too short";
-               return false 
+               return false
              };
         case (_, ?_) {
                Debug.print "  NOT equal: first too short, or second too long";
-               return false 
+               return false
              };
       }
     }

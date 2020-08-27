@@ -188,9 +188,124 @@ module {
     appendLevel(make(data), level, seq)
   };
 
+  /// Very simple fold.
+  /// The sequence maps to a monoid via empty, leaf and branch functions.
+  ///
+  /// See also:
+  /// - [`foldDir`](#foldDir) for directed sequential dependencies in the fold.
+  /// - [`foldMonoid`](#foldDir) for a simpler variant of this function.
+  public func foldMonoid<X, Y>(
+    s : Sequence<X>,
+    empty : Y,
+    leaf : X -> Y,
+    branch : (Y, Y) -> Y
+  ) : Y {
+    switch s {
+      case (#empty) { empty };
+      case (#leaf(x)) { leaf(x) };
+      case (#branch(b)) {
+             branch(foldMonoid(b.left, empty, leaf, branch),
+                    foldMonoid(b.right, empty, leaf, branch)
+             )
+           };
+    }
+  };
+
+  /// Like foldMonoid, except that branch function gets full branch node info
+  public func foldUp<X, Y>(
+    s : Sequence<X>,
+    empty : Y,
+    leaf : X -> Y,
+    branch : (Branch<X>, Y, Y) -> Y
+  ) : Y {
+    switch s {
+      case (#empty) { empty };
+      case (#leaf(x)) { leaf(x) };
+      case (#branch(b)) {
+             branch( b,
+                     foldUp(b.left, empty, leaf, branch),
+                     foldUp(b.right, empty, leaf, branch)
+             )
+           };
+    }
+  };
+
+
+  /// Relate child order and iteration order.
+  ///
+  /// (all defined here, in code)
+  public func branchChild<X>(b : Branch<X>, rank : {#fst; #snd}, dir : {#fwd; #bwd}) : Sequence<X> {
+    switch (rank, dir) {
+    case (#fst, #fwd) { b.left };
+    case (#snd, #fwd) { b.right };
+    case (#fst, #bwd) { b.right };
+    case (#snd, #bwd) { b.left };
+    }
+  };
+
+  /**
+   Fold with directed sequential dependencies.
+
+   Folds the binary tree into an accumulated value, forward or backward.
+
+   Each function is optional, and behaves like the identity function when `null`.
+
+   Branch case accumulates across five steps:
+    - two subtrees of the branch, and
+    - three points surrounding them (pre, mid, post branch).
+
+   Leaf case accepts an accumulator, initially `empty`.
+   */
+  public func foldDir<X, Y>(
+    s : Sequence<X>,
+    dir : {#fwd; #bwd},
+    empty : Y,
+    leaf : ?((Y, X) -> Y),
+    preBranch : ?((Y, Branch<X>) -> Y),
+    midBranch : ?((Y, Branch<X>) -> Y),
+    postBranch : ?((Y, Branch<X>) -> Y)
+  ) : Y {
+    switch s {
+      case (#empty) { empty };
+      case (#leaf(x)) {
+             switch leaf {
+             case null empty;
+             case (?leaf) leaf(empty, x)
+             }
+           };
+      case (#branch(b)) {
+             // accumulate in five steps:
+             // - two subtrees of the branch, and
+             // - three points surrounding them (pre, mid, post branch).
+             let a1 = switch (preBranch, dir, postBranch) {
+                       case (null, #fwd, _) empty;
+                       case (_, #bwd, null) empty;
+                       case (?pb, #fwd, _) pb(empty, b);
+                       case (_, #bwd, ?pb) pb(empty, b);
+             };
+             let a2 = foldDir(branchChild(b, #fst, dir),
+                              dir, a1, leaf,
+                              preBranch, midBranch, postBranch);
+             let a3 = switch midBranch {
+               case null a2;
+               case (?mb) mb(a2, b);
+             };
+             let a4 = foldDir(branchChild(b, #snd, dir),
+                              dir, a3, leaf,
+                              preBranch, midBranch, postBranch);
+             let a5 = switch (preBranch, dir, postBranch) {
+                       case (null, #bwd, _) empty;
+                       case (_, #fwd, null) empty;
+                       case (?pb, #bwd, _) pb(a4, b);
+                       case (_, #fwd, ?pb) pb(a4, b);
+             };
+             a5
+           };
+    }
+  };
 
   type IterRep<X> = List.List<Sequence<X>>;
-  
+
   public func iter<X>(s : Sequence<X>, dir : {#fwd; #bwd}) : Iter.Iter<X> {
     object {
       var seqs : IterRep<X> = ?(s, null);
