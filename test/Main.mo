@@ -98,11 +98,21 @@ actor {
     Debug.print (debug_show y.toArray());
   };
 
+  func testSlice() {
+    Debug.print "sequence slice";
+    let (s, _) = build([1, 2, 3, 4, 5, 6, 7, 8,
+                        9, 10, 11, 12, 13, 14, 15, 16]);
+    let (s1, s2, s3) = Sequence.slice(s, 5, 5);
+    let (_, b2) = build([6, 7, 8, 9, 10]);
+    assert equal(s2, b2);
+  };
+
   public func selfTest() {
     Debug.print "BEGIN bi-simulation of Sequence versus Buffer modules";
     let (s0, b0) = build([1, 2, 3, 4, 5, 6, 7, 8,
                           9, 10, 11, 12, 13, 14, 15, 16]);
     bisimulationTest(s0, b0);
+    testSlice();
     Debug.print "SUCCESS";
   };
 
