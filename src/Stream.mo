@@ -5,6 +5,7 @@ import Nat32 "mo:base/Nat32";
 import Debug "mo:base/Debug";
 
 module {
+  /// (Infinite) streams (no ending).
   public type Stream<X> = { next : () -> X };
 
   /// Transform infinite iterator

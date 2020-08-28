@@ -1,9 +1,12 @@
 import Sequence "../src/Sequence";
 import Stream "../src/Stream";
 
+import Sort "../src/Sort";
+
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
 
 actor {
 
@@ -50,12 +53,12 @@ actor {
     )
   };
 
-  func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
+  func equalIter(i : Iter.Iter<Nat>, j : Iter.Iter<Nat>) : Bool {
     Debug.print "test equality:";
-    let i = Sequence.iter(x, #fwd);
-    let j = y.vals();
     loop {
-      switch (i.next(), j.next()) {
+      let (x, y) = (i.next(), j.next());
+      Debug.print (debug_show (x, y));
+      switch (x, y) {
         case (null, null) {
                Debug.print "  EQUAL.";
                return true
@@ -76,6 +79,12 @@ actor {
              };
       }
     }
+  };
+
+  func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
+    let i = Sequence.iter(x, #fwd);
+    let j = y.vals();
+    equalIter(i, j)
   };
 
   func bisimulationTest(x : Sequence<Nat>, y : Buffer<Nat>) {
@@ -107,12 +116,21 @@ actor {
     assert equal(s2, b2);
   };
 
+  func testSort() {
+    Debug.print "sequence sort";
+    let (s, _) = build([10, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, 2]);
+    let (_, b) = build([0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 8, 10]);
+    let sort = Sort.Sort(Nat.toText, Nat.compare);
+    assert equalIter(sort.iter(s), b.vals())
+  };
+
   public func selfTest() {
     Debug.print "BEGIN bi-simulation of Sequence versus Buffer modules";
     let (s0, b0) = build([1, 2, 3, 4, 5, 6, 7, 8,
                           9, 10, 11, 12, 13, 14, 15, 16]);
     bisimulationTest(s0, b0);
     testSlice();
+    testSort();
     Debug.print "SUCCESS";
   };
 

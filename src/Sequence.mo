@@ -256,7 +256,6 @@ module {
     }
   };
 
-
   /// Relate child order and iteration order.
   ///
   /// (all defined here, in code)
