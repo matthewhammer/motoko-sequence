@@ -25,7 +25,11 @@ module {
 
   public class Sort<X>(compare : (X, X) -> Order.Order) {
 
-    private func merge(s1 : Cell<X>, s2 : Cell<X>) : Cell<X> {
+    /// compiler-issue: Type error if I inline this definition.
+    func cellMake(x : X) : Cell<X> = Cell.make(x);
+
+    /// Create a "merge cell" from two cells
+    public func merge(s1 : Cell<X>, s2 : Cell<X>) : Cell<X> {
       switch (s1, s2) {
       case (_, null) s2;
       case (null, _) s1;
@@ -52,10 +56,19 @@ module {
       }
     };
 
-    public func iter<X>(s : Seq<X>) : Iter<X> {
-      // let sort = foldUp merge ;
-      // StreamCell.toIter(sort)
-      assert false ; loop { }
+    /// Create a "sort cell" from a sequence.
+    public func sort(s : Seq<X>) : Cell<X> {
+      Sequence.monoid<X, Cell<X>>(
+        s,
+        null,
+        cellMake,
+        merge
+      );
+    };
+
+    /// Iterate the sorted sequence.
+    public func iter(s : Seq<X>) : Iter<X> {
+      Cell.toIter(sort(s))
     };
 
   }

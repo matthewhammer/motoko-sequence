@@ -11,6 +11,9 @@ module {
   public func cell<X>(head : X, tail : Cell<X>) : Cell<X> =
     ?(head, ?(func () : Cell<X> { tail }));
 
+  /// Construct one-value Cell from head (only)
+  public func make<X>(head : X) : Cell<X> = ?(head, null);
+
   /// Construct Cell from existing data "now" and data "later"
   public func nowLater<X>(now : X, later : () -> Cell<X>) : Cell<X> =
     ?(now, ?later);
@@ -31,9 +34,19 @@ module {
     }
   };
 
-  /// Convert the cell into an iterator.
+  /// Cell from (more lazy) Iter type.
   ///
-  /// (The conversion uses a single mutable variable for the current cell, and it advances only as the iterator is consumed)
+  /// Necessarily, tries to advance iterator, but (initially) just once.
+  public func fromIter<X>(i : Iter.Iter<X>) : Cell<X> {
+    func nextCell() : Cell<X> {
+      switch (i.next()) {
+      case null null;
+      case (?now) nowLater(now, nextCell);
+    }};
+    nextCell()
+  };
+
+  /// Iter from (less lazy) Cell type.
   public func toIter<X>(c : Cell<X>) : Iter.Iter<X> {
     object {
       var cell = c;

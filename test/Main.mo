@@ -6,6 +6,7 @@ import Sort "../src/Sort";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
 
 actor {
 
@@ -52,10 +53,8 @@ actor {
     )
   };
 
-  func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
+  func equalIter(i : Iter.Iter<Nat>, j : Iter.Iter<Nat>) : Bool {
     Debug.print "test equality:";
-    let i = Sequence.iter(x, #fwd);
-    let j = y.vals();
     loop {
       switch (i.next(), j.next()) {
         case (null, null) {
@@ -78,6 +77,12 @@ actor {
              };
       }
     }
+  };
+
+  func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
+    let i = Sequence.iter(x, #fwd);
+    let j = y.vals();
+    equalIter(i, j)
   };
 
   func bisimulationTest(x : Sequence<Nat>, y : Buffer<Nat>) {
@@ -110,7 +115,45 @@ actor {
   };
 
   func testSort(x : Sequence<Nat>, y : Buffer<Nat>) {
-    // to do
+    Debug.print "sequence sort";
+    let (s, _) = build([15, 16, 9, 10, 10,
+                        1, 2, 3, 3, 4, 5,
+                        0, 1, 6, 7, 8, 6,
+                        11, 12, 0, 13, 1, 2,
+                        14, 15, 16, 1, 2, 4]);
+    let (_, b) = build([
+                         0,
+                         0,
+                         1,
+                         1,
+                         1,
+                         1,
+                         2,
+                         2,
+                         2,
+                         3,
+                         3,
+                         4,
+                         4,
+                         5,
+                         6,
+                         6,
+                         7,
+                         8,
+                         9,
+                         10,
+                         10,
+                         11,
+                         12,
+                         13,
+                         14,
+                         15,
+                         15,
+                         16,
+                         16,
+                       ]);
+    let sort = Sort.Sort(Nat.compare);
+    assert equalIter(sort.iter(s), b.vals())
   };
 
   public func selfTest() {
