@@ -1,6 +1,8 @@
 import Sequence "../src/Sequence";
 import Stream "../src/Stream";
 
+import Sort "../src/Sort";
+
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
@@ -105,6 +107,10 @@ actor {
     let (s1, s2, s3) = Sequence.slice(s, 5, 5);
     let (_, b2) = build([6, 7, 8, 9, 10]);
     assert equal(s2, b2);
+  };
+
+  func testSort(x : Sequence<Nat>, y : Buffer<Nat>) {
+    // to do
   };
 
   public func selfTest() {
