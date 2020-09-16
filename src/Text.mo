@@ -79,7 +79,6 @@ module {
 
     let append = Seq.makeAppend(levels);
 
-
     public func putSlice(s1 : TextSeq, pos : Nat, s2 : TextSeq) : TextSeq {
       // to do
       #empty
@@ -96,6 +95,4 @@ module {
 
   // to do:
   // slice (insertSlice, removeSlice)
-  // tokens
-  // flatten
 }

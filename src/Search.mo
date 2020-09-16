@@ -44,7 +44,8 @@ module {
     metric : FileWord;
   };
 
-  class BigSearch() {
+  // stores a database of text files, with keyword search
+  public class BigSearch() {
 
     var count = 0;
 
