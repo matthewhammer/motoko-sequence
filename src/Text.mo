@@ -92,7 +92,4 @@ module {
     };
 
   };
-
-  // to do:
-  // slice (insertSlice, removeSlice)
 }
