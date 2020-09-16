@@ -4,8 +4,12 @@ import Stream "Stream";
 
 module {
   public type LevelStream = Stream.Stream<Nat32>;
+
   public type TextSeq = Seq.Sequence<Text>;
   public type TextSeqSeq = Seq.Sequence<TextSeq>;
+
+  public type Token = { pos : Nat; text : TextSeq }; // (original raw position, token text)
+  public type TokenSeq = Seq.Sequence<Token>;
 
   public type Pattern = Text.Pattern;
 
@@ -31,45 +35,27 @@ module {
   /// separate text by whitespace, and include all sub-sequences
   /// (whitespace and non-whitespace)
   /// in the output (a sequence of text sequences).
-  public func tokens(s : TextSeq, p : Pattern) : TextSeqSeq {
-    switch s {
-      case (#empty) #empty;
-      case (#leaf(text)) {
-             var seq : TextSeq = Seq.empty();
-             var siz = 0;
-             for (token in Text.tokens(text, p)) {
-               siz += 1;
-               // (compiler-question(dfx 6.7): why cannot infer type arg here?)
-               seq := Seq.branch<Text>(Seq.empty() : TextSeq, 0, seq);
-             };
-             #leaf(seq)
-           };
-      case (#branch(b)) {
-             Seq.branch<TextSeq>(tokens(b.left, p),
-                                 b.level,
-                                 tokens(b.right, p))
-           };
-    }
+  public func tokens(s : TextSeq, p : Pattern) : TokenSeq {
+    tokensRec(s, p, 0)
   };
 
-  // optimized variant fuses flatten and tokens into one recursive tree walk.
-  // (same as tokens(), except in #leaf case, we do not introduce another level of nested sequence.)
-  public func flatTokens(s : TextSeq, p : Pattern) : TextSeq {
+  func tokensRec(s : TextSeq, p : Pattern, pos : Nat) : TokenSeq {
     switch s {
       case (#empty) #empty;
       case (#leaf(text)) {
-             var seq : TextSeq = Seq.empty();
-             var siz = 0;
+             var seq : TokenSeq = Seq.empty();
+             var pos_ = pos;
              for (token in Text.tokens(text, p)) {
-               siz += 1;
-               seq := Seq.branch<Text>(Seq.empty() : TextSeq, 0, seq);
+               // (compiler-question(dfx 6.7): why cannot infer type arg here?)
+               seq := Seq.branch<Token>(Seq.make<Token>({pos=pos_; text=#leaf(token)}), 0, seq);
+               pos_ += Text.size(token);
              };
              seq
            };
       case (#branch(b)) {
-             Seq.branch<Text>(flatTokens(b.left, p),
-                              b.level,
-                              flatTokens(b.right, p))
+             Seq.branch<Token>(tokensRec(b.left, p, pos),
+                               b.level,
+                               tokensRec(b.right, p, pos + Seq.size(b.left)))
            };
     }
   };
