@@ -69,12 +69,12 @@ module {
     var searchIndex : Trie.Trie<Text, Sequence.Sequence<SearchResult>> = Trie.empty();
 
     /// create a new text sequence
-    public func create(n : ?Text, m : ?Text, c : Text) : async FileId {
+    public func create(n : ?Text, m : ?Text, c : Text) : FileId {
       db.create({ name = n; meta = m; var content = Sequence.make(c)})
     };
 
     /// delete a text sequence
-    public func delete(id : FileId) : async Bool {
+    public func delete(id : FileId) : Bool {
       switch (db.delete(id)) {
       case (#ok(_)) true;
       case (#err(_)) false;
@@ -82,7 +82,7 @@ module {
     };
 
     /// append to an existing text sequence
-    public func addText(id : FileId, t : Text) : async Bool {
+    public func addText(id : FileId, t : Text) : Bool {
       switch (db.read(id)) {
       case (#ok(file)) {
              file.content := append(file.content, Sequence.make(t));
@@ -94,7 +94,7 @@ module {
 
 
     /// read a text sequence
-    public func readText(id : FileId) : async ?Text {
+    public func readText(id : FileId) : ?Text {
       switch (db.read(id)) {
       case (#ok(file)) { ?Texts.toText(file.content) };
       case (#err(_)) { null };
@@ -102,7 +102,7 @@ module {
     };
 
     /// read a text sequence slice
-    public func readSlice(id : FileId, pos : Nat, size : Nat) : async ?Text {
+    public func readSlice(id : FileId, pos : Nat, size : Nat) : ?Text {
       switch (db.read(id)) {
       case (#ok(file)) { ?Texts.toText(file.content) }; // to do -- slice!
       case (#err(_)) { null };
@@ -122,7 +122,7 @@ module {
 
     };
 
-    public func search(q : Text, maxResults : Nat) : async [SearchResult] {
+    public func search(q : Text, maxResults : Nat) : [SearchResult] {
       refreshIndex();
       let results =
         Sequence.iter(
