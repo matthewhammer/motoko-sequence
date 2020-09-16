@@ -1,4 +1,5 @@
-import Trie "mo:base/Trie";
+import Nat32 "mo:base/Nat32";
+import Trie  "mo:base/Trie";
 import Iter "mo:base/Iter";
 import List "mo:base/List";
 import Stream "Stream";
@@ -343,6 +344,30 @@ module {
         case (#bwd, ?(#branch(b), ts)) { seqs := ?(b.right, ?(b.left, ts)); next() };
         }
       }
+    }
+  };
+
+  public func fromAssocList<K, V, T>(
+    l : List.List<(Trie.Key<K>, V)>,
+    kv : (Trie.Key<K>, V) -> T) : Sequence<T> {
+    switch l {
+      case null { #empty };
+      case (?(h,t)) { branch<T>(make<T>(kv h), 0, fromAssocList(t, kv)) };
+    }
+  };
+
+  public func fromTrie<K, V, T>(
+    t : Trie.Trie<K, V>,
+    kv : (Trie.Key<K>, V) -> T) : Sequence<T> {
+    switch t {
+    case (#empty) #empty;
+    case (#leaf(leaf)) fromAssocList(leaf.keyvals, kv);
+    case (#branch(b)) {
+           // size (of original sub-trie) can serve as a valid level
+           branch<T>(fromTrie(b.left, kv),
+                     Nat32.fromNat(b.size),
+                     fromTrie(b.right, kv))
+         }
     }
   };
 

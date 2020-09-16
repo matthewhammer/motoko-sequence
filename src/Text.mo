@@ -8,7 +8,7 @@ module {
   public type TextSeq = Seq.Sequence<Text>;
   public type TextSeqSeq = Seq.Sequence<TextSeq>;
 
-  public type Token = { pos : Nat; text : TextSeq }; // (original raw position, token text)
+  public type Token = { pos : Nat; text : Text }; // (original raw position, token text)
   public type TokenSeq = Seq.Sequence<Token>;
 
   public type Pattern = Text.Pattern;
@@ -47,7 +47,7 @@ module {
              var pos_ = pos;
              for (token in Text.tokens(text, p)) {
                // (compiler-question(dfx 6.7): why cannot infer type arg here?)
-               seq := Seq.branch<Token>(Seq.make<Token>({pos=pos_; text=#leaf(token)}), 0, seq);
+               seq := Seq.branch<Token>(Seq.make<Token>({pos=pos_; text=token}), 0, seq);
                pos_ += Text.size(token);
              };
              seq

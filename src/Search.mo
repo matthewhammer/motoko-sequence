@@ -27,21 +27,27 @@ module {
     var content : TextSeq; // e.g., CanCan stores some video-related text here, like a comment, explicit hashtag(s), etc
   };
 
-  // metrics that relate one file and one word (both already known from context)
-  public type FileWord = {
+  // Metric measures things about one file and one word.
+  // (both already known from context).
+  // at most one Metric each word-file relationship.
+  public type Metric = {
     count : Nat; // how many times does the word appear?
     first : Nat; // where does it first appear?
     last : Nat;  // where does it last appear?
   };
 
-  // Like TextFile, SearchResult contains name and meta;
-  // instead of full content, uses only the position of search result in that content
+  type FileMetric = {
+    file : FileId;
+    metric : Metric;
+  };
+
   public type SearchResult = {
     file : FileId;
-    name : ?Text;
     meta : ?Text;
-    metric : FileWord;
+    metric : Metric;
   };
+
+  public type SearchResults = Sequence.Sequence<SearchResult>;
 
   // stores a database of text files, with keyword search
   public class BigSearch() {
@@ -61,11 +67,11 @@ module {
       #hash(Hash.hash),
     );
 
-    // fileWords stores pairwise word-file relationships
-    var fileWords : Trie.Trie2D<Text, Nat, FileWord> = Trie.empty();
+    // wordFileMetric stores at most one Metric each word-file relationship
+    var wordFileMetric : Trie.Trie2D<Text, Nat, Metric> = Trie.empty();
 
     // searchIndex relates a word with all its word-file relationships
-    var searchIndex : Trie.Trie<Text, Sequence.Sequence<SearchResult>> = Trie.empty();
+    var searchIndex : Trie.Trie<Text, SearchResults> = Trie.empty();
 
     /// create a new text sequence
     public func create(n : ?Text, m : ?Text, c : Text) : FileId {
@@ -108,23 +114,85 @@ module {
       }
     };
 
+    public func readMeta (file : FileId) : ?Text {
+      switch (db.read(file)) {
+      case (#ok(file)) { file.meta };
+      case (#err(_)) { null };
+      }
+    };
+
     func refreshIndex() {
-      func indexFile(f : TextFile) {
-        let words = Texts.tokens(f.content, #predicate(Char.isWhitespace));
-        for (word in Sequence.iter(words, #fwd)) {
-          // to do
-        };
-      };
-      for (file in db.entries()) {
-        indexFile(file.1)
+
+      func updateFileWordMetric(id : FileId, pos : Nat, word : Text) {
+        let wordKey = { key = word; hash = Text.hash(word) };
+        let idKey = { key = id; hash = Hash.hash(id) };
+        switch (Trie.find(wordFileMetric, wordKey, Text.equal)) {
+        case null {
+               wordFileMetric
+                 := Trie.put2D<Text, Nat, Metric>(
+                   wordFileMetric, wordKey, Text.equal, idKey, Nat.equal,
+                   { count = 1;
+                     first = pos;
+                     last = pos; }
+                 )
+             };
+        case (?files) {
+               switch (Trie.find(files, idKey, Nat.equal)) {
+               case null {
+                      wordFileMetric := Trie.put2D(
+                        wordFileMetric, wordKey, Text.equal, idKey, Nat.equal,
+                        { count = 1;
+                          first = pos;
+                          last = pos;
+                        }
+                      )
+                    };
+               case (?metric) {
+                      wordFileMetric := Trie.put2D(
+                        wordFileMetric, wordKey, Text.equal, idKey, Nat.equal,
+                        { count = metric.count + 1;
+                          first = Nat.min(metric.first, pos);
+                          last = Nat.max(metric.last, pos);
+                        }
+                      )
+                    }
+               }
+             };
+        }
       };
 
+      func indexFile(id : FileId, f : TextFile) {
+        let words = Texts.tokens(f.content, #predicate(Char.isWhitespace));
+        for (word in Sequence.iter(words, #fwd)) {
+          updateFileWordMetric(id, word.pos, word.text)
+        };
+      };
+      wordFileMetric := Trie.empty();
+      for (file in db.entries()) {
+        indexFile(file.0, file.1)
+      };
+
+      searchIndex :=
+        Trie.mapFilter<Text, Trie.Trie<Nat, Metric>, SearchResults>(
+          wordFileMetric,
+          func (word : Text, metrics : Trie.Trie<Nat, Metric>) : ?SearchResults {
+            ?Sequence.fromTrie<Nat, Metric, SearchResult>(
+              metrics,
+              func (file_, metric_) : SearchResult {
+                { file = file_.key;
+                  meta = readMeta(file_.key);
+                  metric = metric_;
+                }
+              }
+            )
+          });
     };
 
     public func search(q : Text, maxResults : Nat) : [SearchResult] {
       refreshIndex();
       let results =
-        Sequence.iter(
+        // to do -- sort by a requested metric (store in unsorted form, unbiased toward a metric)
+        Sequence.iter<SearchResult>(
           switch (Trie.find(searchIndex,
                            { key = q ;
                              hash = Text.hash(q) },
