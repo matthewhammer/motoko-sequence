@@ -2,7 +2,6 @@ import Debug "mo:base/Debug";
 import Hash "mo:base/Hash";
 import Nat "mo:base/Nat";
 import Char "mo:base/Char";
-import Order "mo:base/Order";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Iter "mo:base/Iter";
@@ -104,7 +103,7 @@ module {
     /// read a text sequence slice
     public func readSlice(id : FileId, pos : Nat, size : Nat) : ?Text {
       switch (db.read(id)) {
-      case (#ok(file)) { ?Texts.toText(file.content) }; // to do -- slice!
+      case (#ok(file)) { ?Texts.toText(Sequence.slice<Text>(file.content, pos, size).1) };
       case (#err(_)) { null };
       }
     };

@@ -27,21 +27,23 @@ actor {
     bigSearch.addText(id, t)
   };
 
-  /// read a text sequence (to do -- "flatten"/simplify to Text, for easier JS usage)
+  /// read a text sequence
   public func readText(id : FileId) : async ?Text {
     bigSearch.readText(id)
   };
 
-  /// read a text sequence slice (to do -- "flatten"/simplify to Text, for easier JS usage)
+  /// read a text sequence slice
   public func readSlice(id : FileId, pos : Nat, size : Nat) : async ?Text {
     bigSearch.readSlice(id, pos, size)
   };
 
   public func selfTest() {
+    // to do?
     Debug.print "hello"
   };
 
   public func doNextCall() : async Bool {
+    // to do -- for testing with BigTest
     false
   };
 }
