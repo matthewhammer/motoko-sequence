@@ -12,6 +12,7 @@ import Db "mo:crud/Database";
 
 import Sequence "Sequence";
 import Texts "Text";
+import IterExt "IterExt";
 
 module {
 
@@ -202,7 +203,7 @@ module {
           },
           #fwd
         );
-      Iter.toArray(results)
+      Iter.toArray(IterExt.max(results, maxResults))
     };
 
   }
