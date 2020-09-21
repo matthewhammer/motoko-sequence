@@ -2,6 +2,9 @@
   "canisters": {
     "Main": {
       "main": "test/Main.mo"
+    },
+    "BigSearch": {
+      "main": "service/BigSearch.mo"
     }
   },
   "defaults": {

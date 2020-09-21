@@ -3,6 +3,10 @@ import Stream "../src/Stream";
 
 import Sort "../src/Sort";
 
+import Text "../src/Text";
+
+import Search "../src/Search";
+
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
