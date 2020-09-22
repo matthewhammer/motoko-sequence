@@ -8,7 +8,7 @@ actor {
   flexible var bigSearch = Search.BigSearch();
 
   // do a keyword search, limited to at most maxResults
-  public func search(q : Text, maxResults : Nat) : async [Search.SearchResult] {
+  public query func search(q : ?Text, maxResults : Nat) : async [Search.SearchResult] {
     bigSearch.search(q, maxResults)
   };
 

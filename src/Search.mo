@@ -4,15 +4,18 @@ import Nat "mo:base/Nat";
 import Char "mo:base/Char";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import Buffer "mo:base/Buffer";
+
 import Iter "mo:base/Iter";
+import IterExt "IterExt";
 
 import Trie "mo:base/Trie";
+import TrieExt "TrieExt";
 
 import Db "mo:crud/Database";
 
 import Sequence "Sequence";
 import Texts "Text";
-import IterExt "IterExt";
 
 module {
 
@@ -189,22 +192,40 @@ module {
           });
     };
 
-    public func search(q : Text, maxResults : Nat) : [SearchResult] {
-      refreshIndex();
-      let results =
-        // to do -- sort by a requested metric (store in unsorted form, unbiased toward a metric)
-        Sequence.iter<SearchResult>(
-          switch (Trie.find(searchIndex,
-                           { key = q ;
-                             hash = Text.hash(q) },
-                           Text.equal)) {
-            case null #empty;
-            case (?t) t;
-          },
-          #fwd
-        );
-      Iter.toArray(IterExt.max(results, maxResults))
+    public func search(q : ?Text, maxResults : Nat) : [SearchResult] {
+      switch q {
+        case (?queryy) {
+               refreshIndex();
+               let results =
+                 // to do -- sort by a requested metric (store in unsorted form, unbiased toward a metric)
+                 Sequence.iter<SearchResult>(
+                   switch (Trie.find(searchIndex,
+                                     { key = queryy ;
+                                       hash = Text.hash(queryy) },
+                                     Text.equal)) {
+               case null #empty;
+               case (?t) t;
+                   },
+                   #fwd
+                 );
+               Iter.toArray(IterExt.max(results, maxResults))
+             };
+        case null {
+               // No query text.
+               // So, dump all wordFileMetric that we have stored
+               // (to do : filter by a time window; order by a timestamp)
+               let dump = Buffer.Buffer<SearchResult>(0);
+               for ((word, files) in TrieExt.entries(wordFileMetric)) {
+                 for ((fileId, metric_) in TrieExt.entries(files)) {
+                   dump.add({ file = fileId ;
+                              meta = readMeta(fileId) ;
+                              metric = metric_ })
+                 };
+               };
+               dump.toArray()
+             }
+      }
     };
+  };
 
-  }
 }
