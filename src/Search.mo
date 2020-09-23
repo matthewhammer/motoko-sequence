@@ -26,7 +26,7 @@ module {
   public type TextSeq = Sequence.Sequence<Text>;
 
   public type TextFile = {
-    name : ?Text; // perhaps un-needed?
+    name : ?Text;
     meta : ?Text; // e.g., CanCan stores video ID here (or whatever helps render search results visually)
     var content : TextSeq; // e.g., CanCan stores some video-related text here, like a comment, explicit hashtag(s), etc
   };
