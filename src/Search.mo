@@ -48,7 +48,7 @@ module {
   public type SearchResult = {
     file : FileId;
     meta : ?Text;
-    metric : Metric;
+    metric : ?Metric; // (metric is null for no search query)
   };
 
   public type SearchResults = Sequence.Sequence<SearchResult>;
@@ -185,7 +185,7 @@ module {
               func (file_, metric_) : SearchResult {
                 { file = file_.key;
                   meta = readMeta(file_.key);
-                  metric = metric_;
+                  metric = ?metric_;
                 }
               }
             )
@@ -215,12 +215,10 @@ module {
                // So, dump all wordFileMetric that we have stored
                // (to do : filter by a time window; order by a timestamp)
                let dump = Buffer.Buffer<SearchResult>(0);
-               for ((word, files) in TrieExt.entries(wordFileMetric)) {
-                 for ((fileId, metric_) in TrieExt.entries(files)) {
-                   dump.add({ file = fileId ;
-                              meta = readMeta(fileId) ;
-                              metric = metric_ })
-                 };
+               for ((fileId, file_) in db.entries()) {
+                 dump.add({ file = fileId ;
+                            meta = file_.meta ;
+                            metric = null })
                };
                dump.toArray()
              }
