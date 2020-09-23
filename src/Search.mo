@@ -193,9 +193,9 @@ module {
     };
 
     public func search(q : ?Text, maxResults : Nat) : [SearchResult] {
+      refreshIndex();
       switch q {
         case (?queryy) {
-               refreshIndex();
                let results =
                  // to do -- sort by a requested metric (store in unsorted form, unbiased toward a metric)
                  Sequence.iter<SearchResult>(
