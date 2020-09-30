@@ -140,10 +140,11 @@ module {
       case (#empty) null;
       case (#leaf(x)) if (pos == 0) ?x else null;
       case (#branch(b)) {
-             if (pos < size(b.left)) {
+             let lSize = size(b.left);
+             if (pos < lSize) {
                get(b.left, pos)
              } else {
-               get(b.right, pos - b.size)
+               get(b.right, pos - lSize)
              }
            };
     }
@@ -222,7 +223,9 @@ module {
   };
 
   public func peekBack<X>(seq : Sequence<X>) : ?X {
-    get(seq, size(seq) - 1)
+    if (size(seq) > 0) {
+      get(seq, size(seq) - 1)
+    } else null
   };
 
   public func peekFront<X>(seq : Sequence<X>) : ?X {
