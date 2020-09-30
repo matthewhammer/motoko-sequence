@@ -53,8 +53,14 @@ module {
   };
 
   public func branch<X>(l : Sequence<X>, midLev : Level, r : Sequence<X>) : Sequence<X> {
-    let s = size(l) + size(r);
-    #branch({ left = l ; level = midLev ; right = r ; size = s })
+    switch (l, r) {
+      case (#empty, _) { r };
+      case (_, #empty) { l };
+      case (_, _) {
+             let s = size(l) + size(r);
+             #branch({ left = l ; level = midLev ; right = r ; size = s })
+           };
+    }
   };
 
   // given an infinite stream of levels, we can append pairs of sequences forever : )
@@ -369,6 +375,25 @@ module {
                      fromTrie(b.right, kv))
          }
     }
+  };
+
+  /// separate into (nested) sub-sequences by looking for sub-sequence delimiter elements (omitted from output)
+  public func tokens<X>(s : Sequence<X>, isDelim : X -> Bool, levels : Stream<Level>) : Sequence<Sequence<X>> {
+    var outer : Sequence<Sequence<X>> = empty();
+    var inner : Sequence<X> = empty();
+    for (x in iter(s, #fwd)) {
+      if (isDelim(x)) {
+        outer := pushBack(outer, levels.next(), inner);
+        inner := empty();
+      }
+      else {
+        inner := pushBack(inner, levels.next(), x)
+      }
+    };
+    if (size(inner) > 0) {
+      outer := pushBack(outer, levels.next(), inner)
+    };
+    outer
   };
 
 }

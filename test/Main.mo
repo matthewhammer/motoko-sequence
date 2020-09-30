@@ -3,13 +3,15 @@ import Stream "../src/Stream";
 
 import Sort "../src/Sort";
 
-import Text "../src/Text";
+import TextSeq "../src/Text";
 
 import Search "../src/Search";
 
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Nat "mo:base/Nat";
+import Char "mo:base/Char";
+import Text "mo:base/Text";
 import Iter "mo:base/Iter";
 
 actor {
@@ -19,13 +21,13 @@ actor {
 
   let append = Sequence.defaultAppend();
 
-  func build(nats : [Nat]) : (Sequence<Nat>, Buffer<Nat>) {
-    let b = Buffer.Buffer<Nat>(0);
-    for (n in nats.vals()) {
-      b.add(n);
+  func build<X>(arr : [X]) : (Sequence<X>, Buffer<X>) {
+    let b = Buffer.Buffer<X>(0);
+    for (x in arr.vals()) {
+      b.add(x);
     };
     let levels = Stream.Bernoulli.seedFrom(0);
-    let s = Sequence.fromArray(nats, levels);
+    let s = Sequence.fromArray(arr, levels);
     (s, b)
   };
 
@@ -57,19 +59,21 @@ actor {
     )
   };
 
-  func equalIter(i : Iter.Iter<Nat>, j : Iter.Iter<Nat>) : Bool {
+  func equalIter<X>(i : Iter.Iter<X>, j : Iter.Iter<X>,
+                    text : X -> Text, equal : (X, X) -> Bool) : Bool {
     Debug.print "test equality:";
     loop {
       let (x, y) = (i.next(), j.next());
-      Debug.print (debug_show (x, y));
       switch (x, y) {
         case (null, null) {
                Debug.print "  EQUAL.";
                return true
              };
         case (?x, ?y) {
-               if (x != y) {
+               if (not (equal(x, y))) {
                  Debug.print "  NOT equal: distinct vals."; // to do: more info?
+                 Debug.print (text x);
+                 Debug.print (text y);
                  return false;
                };
              };
@@ -88,7 +92,7 @@ actor {
   func equal(x : Sequence<Nat>, y : Buffer<Nat>) : Bool {
     let i = Sequence.iter(x, #fwd);
     let j = y.vals();
-    equalIter(i, j)
+    equalIter(i, j, Nat.toText, Nat.equal)
   };
 
   func bisimulationTest(x : Sequence<Nat>, y : Buffer<Nat>) {
@@ -125,7 +129,21 @@ actor {
     let (s, _) = build([10, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, 2]);
     let (_, b) = build([0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 8, 10]);
     let sort = Sort.Sort(Nat.toText, Nat.compare);
-    assert equalIter(sort.iter(s), b.vals())
+    assert equalIter(sort.iter(s), b.vals(), Nat.toText, Nat.equal)
+  };
+
+  func testTokens() {
+    Debug.print "sequence tokens";
+    let (s1, _) = build(["A", " ", "c", "a", "t", " ", "a", "n", "d", " ", "h", "a", "t", "."]);
+    let (s2, _) = build(["A", "cat", "and", "hat."]);
+    let levels = Stream.Bernoulli.seedFrom(0);
+    let s12 = Sequence.tokens(s1, func (t : Text) : Bool { t == " " }, levels);
+    let s3 = TextSeq.flatten(s12);
+    Debug.print (debug_show s1);
+    Debug.print (debug_show s2);
+    Debug.print (debug_show s12);
+    Debug.print (debug_show s3);
+    assert equalIter(Sequence.iter<Text>(s2, #fwd), Sequence.iter<Text>(s3, #fwd), func (t: Text) : Text { t }, Text.equal)
   };
 
   public func selfTest() {
@@ -135,6 +153,7 @@ actor {
     bisimulationTest(s0, b0);
     testSlice();
     testSort();
+    testTokens();
     Debug.print "SUCCESS";
   };
 
