@@ -115,6 +115,22 @@ actor {
     Debug.print (debug_show y.toArray());
   };
 
+  func testPop() {
+    Debug.print "sequence popFront";
+    let first = 10;
+    let last = 11;
+    let (s, _) = build([first, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, last]);
+    switch (Sequence.popFront(s)) {
+      case (?(f, rest)) { assert f == first; };
+      case _ { assert false; loop { }};
+    };
+    Debug.print "sequence popBack";
+    switch (Sequence.popBack(s)) {
+      case (?(_, eleven)) { assert eleven == 11; };
+      case _ { assert false; loop { }};
+    };
+  };
+
   func testSlice() {
     Debug.print "sequence slice";
     let (s, _) = build([1, 2, 3, 4, 5, 6, 7, 8,
@@ -151,6 +167,7 @@ actor {
     let (s0, b0) = build([1, 2, 3, 4, 5, 6, 7, 8,
                           9, 10, 11, 12, 13, 14, 15, 16]);
     bisimulationTest(s0, b0);
+    testPop();
     testSlice();
     testSort();
     testTokens();
