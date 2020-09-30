@@ -153,7 +153,9 @@ module {
   ///
   /// for insufficient sequence values, the first result is the full input, and the second result is empty
   public func split<X>(s : Sequence<X>, size1 : Nat) : (Sequence<X>, Sequence<X>) {
-    if (size1 > size(s)) {
+    if (size1 == 0) {
+      (#empty, s)
+    } else if (size1 > size(s)) {
       (s, #empty)
     } else {
       switch s {
@@ -180,13 +182,43 @@ module {
   };
 
   public func slice<X>(s : Sequence<X>, start : Nat, size : Nat) : (Sequence<X>, Sequence<X>, Sequence<X>) {
-    let (s1, s23) = split(s, start);
-    let (s2, s3) = split(s23, size);
-    (s1, s2, s3)
+    if (size == 0) {
+      let (s1, s2) = split(s, start);
+      (s1, empty(), s2)
+    } else {
+      let (s1, s23) = split(s, start);
+      let (s2, s3) = split(s23, size);
+      (s1, s2, s3)
+    }
   };
 
   public func pushBack<X>(seq : Sequence<X>, level : Level, data : X) : Sequence<X> {
     appendLevel(seq, level, make(data))
+  };
+
+  public func popFront<X>(seq : Sequence<X>) : ?(X, Sequence<X>) {
+    if (size(seq) > 0) {
+      let (emp, front, rest) = slice(seq, 0, 1);
+      switch (emp, front) {
+        case (#empty, #leaf(x)) ?(x, rest);
+        case _ { assert false; loop { }};
+      }
+    } else {
+      null
+    }
+  };
+
+  public func popBack<X>(seq : Sequence<X>) : ?(Sequence<X>, X) {
+    let s = size(seq);
+    if (s > 0) {
+      let (rest, back, emp) = slice(seq, s - 1, 1);
+      switch (back, emp) {
+        case (#leaf(x), #empty) ?(rest, x);
+        case _ { assert false; loop { }};
+      }
+    } else {
+      null
+    }
   };
 
   public func peekBack<X>(seq : Sequence<X>) : ?X {
