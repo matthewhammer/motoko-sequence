@@ -53,8 +53,14 @@ module {
   };
 
   public func branch<X>(l : Sequence<X>, midLev : Level, r : Sequence<X>) : Sequence<X> {
-    let s = size(l) + size(r);
-    #branch({ left = l ; level = midLev ; right = r ; size = s })
+    switch (l, r) {
+      case (#empty, _) { r };
+      case (_, #empty) { l };
+      case (_, _) {
+             let s = size(l) + size(r);
+             #branch({ left = l ; level = midLev ; right = r ; size = s })
+           };
+    }
   };
 
   // given an infinite stream of levels, we can append pairs of sequences forever : )
