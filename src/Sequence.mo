@@ -371,4 +371,21 @@ module {
     }
   };
 
+  /// separate into (nested) sub-sequences by looking for sub-sequence delimiter elements (omitted from output)
+  public func tokens<X>(s : Sequence<X>, isDelim : X -> Bool) : Sequence<Sequence<X>> {
+    tokensRec(s, isDelim)
+  };
+
+  func tokensRec<X>(s : Sequence<X>, isDelim : X -> Bool) : Sequence<Sequence<X>> {
+    switch s {
+      case (#empty) #empty;
+      case (#leaf(x)) { if (isDelim(x)) #empty else #leaf(s) };
+      case (#branch(b)) {
+             branch<Sequence<X>>(tokensRec(b.left, isDelim),
+                                 b.level,
+                                 tokensRec(b.right, isDelim))
+           };
+    }
+  };
+
 }
