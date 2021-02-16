@@ -13,7 +13,7 @@ jobs:
       run: |
        wget https://sdk.dfinity.org/install.sh
        yes Y | DFX_VERSION=0.6.23 sh install.sh
-       echo "::add-path::/home/runner/bin"
+       echo "/home/runner/bin" >> $GITHUB_PATH
     - name: "dfx cache install"
       run: dfx cache install
     - name: "install vessel"
