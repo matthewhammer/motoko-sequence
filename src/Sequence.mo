@@ -144,7 +144,7 @@ module {
              if (pos < lSize) {
                get(b.left, pos)
              } else {
-               get(b.right, pos - lSize)
+               get(b.right, pos - lSize : Nat)
              }
            };
     }
@@ -168,12 +168,12 @@ module {
 
                } else if (size1 < size(b.left)) { // left size is too big; split it
                  let (s1, s2) = split(b.left, size1);
-                 let size1Diff = size1 - size(s1);
+                 let size1Diff = size1 - size(s1) : Nat;
                  // append, re-using old branch node's level; return extra level (if any)
                  (s1, appendLevel(s2, b.level, b.right))
 
                } else { // left side too small; split right and append
-                 let size1Diff = size1 - size(b.left);
+                 let size1Diff = size1 - size(b.left) : Nat;
                  let (s1, s2) = split(b.right, size1Diff);
                  (appendLevel(b.left, b.level, s1), s2)
                }
@@ -212,7 +212,7 @@ module {
   public func popBack<X>(seq : Sequence<X>) : ?(Sequence<X>, X) {
     let s = size(seq);
     if (s > 0) {
-      let (rest, back, emp) = slice(seq, s - 1, 1);
+      let (rest, back, emp) = slice(seq, s - 1 : Nat, 1);
       switch (back, emp) {
         case (#leaf(x), #empty) ?(rest, x);
         case _ { assert false; loop { }};
@@ -224,7 +224,7 @@ module {
 
   public func peekBack<X>(seq : Sequence<X>) : ?X {
     if (size(seq) > 0) {
-      get(seq, size(seq) - 1)
+      get(seq, size(seq) - 1 : Nat)
     } else null
   };
 

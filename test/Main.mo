@@ -119,7 +119,7 @@ actor {
     Debug.print "sequence popFront";
     let first = 10;
     let last = 11;
-    let (s, _) = build([first, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, last]);
+    let (s, _) = build<Nat>([first, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, last]);
     switch (Sequence.popFront(s)) {
       case (?(f, rest)) { assert f == first; };
       case _ { assert false; loop { }};
@@ -133,25 +133,25 @@ actor {
 
   func testSlice() {
     Debug.print "sequence slice";
-    let (s, _) = build([1, 2, 3, 4, 5, 6, 7, 8,
+    let (s, _) = build<Nat>([1, 2, 3, 4, 5, 6, 7, 8,
                         9, 10, 11, 12, 13, 14, 15, 16]);
     let (s1, s2, s3) = Sequence.slice(s, 5, 5);
-    let (_, b2) = build([6, 7, 8, 9, 10]);
+    let (_, b2) = build<Nat>([6, 7, 8, 9, 10]);
     assert equal(s2, b2);
   };
 
   func testSort() {
     Debug.print "sequence sort";
-    let (s, _) = build([10, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, 2]);
-    let (_, b) = build([0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 8, 10]);
-    let sort = Sort.Sort(Nat.toText, Nat.compare);
+    let (s, _) = build<Nat>([10, 4, 2, 0, 1, 8, 0, 2, 3, 1, 0, 2]);
+    let (_, b) = build<Nat>([0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 8, 10]);
+    let sort = Sort.Sort<Nat>(Nat.toText, Nat.compare);
     assert equalIter(sort.iter(s), b.vals(), Nat.toText, Nat.equal)
   };
 
   func testTokens() {
     Debug.print "sequence tokens";
-    let (s1, _) = build(["A", " ", "c", "a", "t", " ", "a", "n", "d", " ", "h", "a", "t", "."]);
-    let (s2, _) = build(["A", "cat", "and", "hat."]);
+    let (s1, _) = build<Text>(["A", " ", "c", "a", "t", " ", "a", "n", "d", " ", "h", "a", "t", "."]);
+    let (s2, _) = build<Text>(["A", "cat", "and", "hat."]);
     let levels = Stream.Bernoulli.seedFrom(0);
     let s12 = Sequence.tokens(s1, func (t : Text) : Bool { t == " " }, levels);
     let s3 = TextSeq.flatten(s12);
@@ -164,7 +164,7 @@ actor {
 
   public func selfTest() {
     Debug.print "BEGIN bi-simulation of Sequence versus Buffer modules";
-    let (s0, b0) = build([1, 2, 3, 4, 5, 6, 7, 8,
+    let (s0, b0) = build<Nat>([1, 2, 3, 4, 5, 6, 7, 8,
                           9, 10, 11, 12, 13, 14, 15, 16]);
     bisimulationTest(s0, b0);
     testPop();

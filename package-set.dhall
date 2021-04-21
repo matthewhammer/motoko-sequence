@@ -1,12 +1,27 @@
-let upstream = https://github.com/dfinity/vessel-package-set/releases/download/mo-0.6.0-20210419/package-set.dhall sha256:38896dbc769a252f95993a9009bffd0623216a4161e1cf30d1b8cd27b42d8d6e
-
+let upstream = https://github.com/kritzcreek/vessel-package-set/releases/download/mo-0.5.7-20210211/package-set.dhall sha256:43565631bf6b43639fcd0cae5cbb6b5d4f9bf5139e66ef600b8f7ded31821325
 let Package =
     { name : Text, version : Text, repo : Text, dependencies : List Text }
 
 let
   -- This is where you can add your own packages to the package-set
-  additions =
-    [ ] : List Package
+  additions = [
+      { name = "base"
+      , repo = "https://github.com/dfinity/motoko-base"
+      , version = "dfx-0.7.0-beta.2"
+      , dependencies = [] : List Text
+      },
+      { name = "crud"
+      , repo = "https://github.com/matthewhammer/motoko-crud"
+      , version = "master"
+      , dependencies = [] : List Text
+      },
+      { name = "bigmap"
+      , repo = "git@github.com:dfinity/motoko-bigmap.git"
+      , version = "master"
+      , dependencies = ["base", "SHA256"]
+      }
+    ]
+
 
 let
   {- This is where you can override existing packages in the package-set
