@@ -12,11 +12,11 @@ jobs:
     - name: "install dfx"
       run: |
        wget https://sdk.dfinity.org/install.sh
-       yes Y | DFX_VERSION=0.6.23 sh install.sh
+       yes Y | DFX_VERSION=0.7.0-beta.3 sh install.sh
        echo "/home/runner/bin" >> $GITHUB_PATH
     - name: "dfx cache install"
       run: dfx cache install
     - name: "install vessel"
-      run: wget --output-document /home/runner/bin/vessel https://github.com/kritzcreek/vessel/releases/download/v0.4.1/vessel-linux64 && chmod +x /home/runner/bin/vessel
+      run: ./scripts/vessel-install.sh
     - name: "test"
-      run: ./test.sh
+      run: ./scripts/test.sh
