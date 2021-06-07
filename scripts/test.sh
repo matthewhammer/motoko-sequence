@@ -20,7 +20,3 @@ echo == Test service.
 echo
 
 dfx canister call Main selfTest
-LOOP="(true)";
-while [ "$LOOP" == "(true)" ]; do
-    LOOP=$(dfx canister call Main doNextCall)
-done
