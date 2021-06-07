@@ -21,6 +21,24 @@ actor {
 
   let append = Sequence.defaultAppend();
 
+  public type Event = { // to do -- use this more realistically
+    #foo;
+    #bar;
+    #selfTest;
+    #doNextCall;
+  };
+
+  public type EventLog = Sequence<Event>;
+
+  stable var eventLog : EventLog = Sequence.empty();
+  stable var eventCount : Nat = 0;
+
+  /// log the given event kind, with a unique ID and current time
+  func logEvent(e : Event) {
+    eventLog := append<Event>(eventLog, Sequence.make(e));
+    eventCount += 1;
+  };
+
   func build<X>(arr : [X]) : (Sequence<X>, Buffer<X>) {
     let b = Buffer.Buffer<X>(0);
     for (x in arr.vals()) {
@@ -163,6 +181,7 @@ actor {
   };
 
   public func selfTest() {
+    logEvent(#selfTest);
     Debug.print "BEGIN bi-simulation of Sequence versus Buffer modules";
     let (s0, b0) = build<Nat>([1, 2, 3, 4, 5, 6, 7, 8,
                           9, 10, 11, 12, 13, 14, 15, 16]);
@@ -175,6 +194,7 @@ actor {
   };
 
   public func doNextCall() : async Bool {
+    logEvent(#doNextCall);
     false
   };
 }
