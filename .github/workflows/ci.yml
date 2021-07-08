@@ -23,7 +23,7 @@ jobs:
         dfx start --background --no-artificial-delay
         dfx canister --no-wallet create BigSearch
         dfx build BigSearch
-        dfx deploy BigSearch
+        dfx deploy --no-wallet BigSearch
     - name: "docs"
       run: /home/runner/.cache/dfinity/versions/$DFX_VERSION/mo-doc
     - name: Upload docs
