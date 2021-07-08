@@ -6,18 +6,22 @@ on:
   pull_request:
 jobs:
   tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    env:
+      DFX_VERSION: 0.7.5
     steps:
-    - uses: actions/checkout@v1
-    - name: "install dfx"
+    - uses: actions/checkout@v2
+    - name: Install
       run: |
-       wget https://sdk.dfinity.org/install.sh
-       yes Y | DFX_VERSION=0.7.5 sh install.sh
-       echo "/home/runner/bin" >> $GITHUB_PATH
-    - name: "dfx cache install"
-      run: dfx cache install
-    - name: "install vessel"
-      run: ./scripts/vessel-install.sh
+        echo y | DFX_VERSION=$DFX_VERSION bash -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+        echo "/home/runner/bin" >> $GITHUB_PATH
+        ./scripts/vessel-install.sh
+        ./scripts/repl-install.sh
+    - name: Build
+      run: |
+        dfx cache install
+        dfx start --background
+        dfx deploy --no-wallet BigSearch
     - name: "test"
       run: ./scripts/test.sh
     - name: "docs"
