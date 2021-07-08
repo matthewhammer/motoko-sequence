@@ -21,8 +21,6 @@ jobs:
         dfx cache install
         dfx start --background
         dfx deploy --no-wallet BigSearch
-    - name: "test"
-      run: ./scripts/test.sh
     - name: "docs"
       run: /home/runner/.cache/dfinity/versions/0.7.5/mo-doc
     - name: Upload docs
