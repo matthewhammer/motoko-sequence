@@ -8,7 +8,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      DFX_VERSION: 0.7.4
+      DFX_VERSION: 0.7.2
     steps:
     - uses: actions/checkout@v2
     - name: Install
