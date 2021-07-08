@@ -12,15 +12,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: |
+      run: |      
         echo y | DFX_VERSION=$DFX_VERSION bash -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
         echo "/home/runner/bin" >> $GITHUB_PATH
         ./scripts/vessel-install.sh
     - name: Build
       run: |
+        set -x
         dfx cache install
-        dfx start --background
-        dfx deploy --no-wallet BigSearch
+        dfx start --background --no-artificial-delay
+        dfx canister --no-wallet create BigSearch
+        dfx build BigSearch
+        dfx deploy BigSearch
     - name: "docs"
       run: /home/runner/.cache/dfinity/versions/0.7.5/mo-doc
     - name: Upload docs
