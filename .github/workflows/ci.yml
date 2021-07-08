@@ -12,7 +12,7 @@ jobs:
     - name: "install dfx"
       run: |
        wget https://sdk.dfinity.org/install.sh
-       yes Y | DFX_VERSION=0.7.0-beta.3 sh install.sh
+       yes Y | DFX_VERSION=0.7.5 sh install.sh
        echo "/home/runner/bin" >> $GITHUB_PATH
     - name: "dfx cache install"
       run: dfx cache install
@@ -20,3 +20,11 @@ jobs:
       run: ./scripts/vessel-install.sh
     - name: "test"
       run: ./scripts/test.sh
+    - name: "docs"
+      run: /home/runner/.cache/dfinity/versions/0.7.5/mo-doc
+    - name: Upload docs
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: docs/%
