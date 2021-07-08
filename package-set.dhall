@@ -15,13 +15,7 @@ let
       , version = "master"
       , dependencies = [] : List Text
       },
-      { name = "bigmap"
-      , repo = "git@github.com:dfinity/motoko-bigmap.git"
-      , version = "master"
-      , dependencies = ["base", "SHA256"]
-      }
     ]
-
 
 let
   {- This is where you can override existing packages in the package-set

@@ -6,17 +6,29 @@ on:
   pull_request:
 jobs:
   tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    env:
+      DFX_VERSION: 0.7.2
     steps:
-    - uses: actions/checkout@v1
-    - name: "install dfx"
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |      
+        echo y | DFX_VERSION=$DFX_VERSION bash -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+        echo "/home/runner/bin" >> $GITHUB_PATH
+        ./scripts/vessel-install.sh
+    - name: Build
       run: |
-       wget https://sdk.dfinity.org/install.sh
-       yes Y | DFX_VERSION=0.7.0-beta.3 sh install.sh
-       echo "/home/runner/bin" >> $GITHUB_PATH
-    - name: "dfx cache install"
-      run: dfx cache install
-    - name: "install vessel"
-      run: ./scripts/vessel-install.sh
-    - name: "test"
-      run: ./scripts/test.sh
+        set -x
+        dfx cache install
+        dfx start --background --no-artificial-delay
+        dfx canister --no-wallet create BigSearch
+        dfx build BigSearch
+        dfx deploy --no-wallet BigSearch
+    - name: "docs"
+      run: /home/runner/.cache/dfinity/versions/$DFX_VERSION/mo-doc
+    - name: Upload docs
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: docs/
