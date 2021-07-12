@@ -8,7 +8,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      DFX_VERSION: 0.7.2
+      DFX_VERSION: 0.7.5
     steps:
     - uses: actions/checkout@v2
     - name: Install
@@ -19,7 +19,10 @@ jobs:
     - name: Build
       run: |
         set -x
+        whoami
         dfx cache install
+        dfx --version ; dfx cache show ; ls -l $(dfx cache show)
+        $(dfx cache show)/icx-proxy
         dfx start --background --no-artificial-delay
         dfx canister --no-wallet create BigSearch
         dfx build BigSearch
