@@ -19,6 +19,7 @@ jobs:
     - name: Build
       run: |
         set -x
+        whoami
         dfx cache install
         dfx --version ; dfx cache show ; ls -l $(dfx cache show)
         $(dfx cache show)/icx-proxy
