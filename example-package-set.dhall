@@ -10,7 +10,12 @@ let
     additions =
       [ { name = "base"
         , repo = "https://github.com/dfinity/motoko-base"
-        , version = "dfx-0.7.2"
+        , version = "dfx-0.7.0-beta.2"
+        , dependencies = [] : List Text
+        }
+      , { name = "crud"
+        , repo = "https://github.com/matthewhammer/motoko-crud"
+        , version = "master"
         , dependencies = [] : List Text
         }
       ]
