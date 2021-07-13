@@ -1,15 +1,15 @@
 {
   "canisters": {
-    "Main": {
+    "UnitTest": {
       "main": "test/Main.mo"
     },
-    "BigSearch": {
-      "main": "service/BigSearch.mo"
+    "Search": {
+      "main": "example/SearchService/Service.mo"
     }
   },
   "defaults": {
     "build": {
-      "packtool": "vessel sources",
+      "packtool": "vessel --package-set example-package-set.dhall sources",
       "output": "canisters/"
     },
     "start": {

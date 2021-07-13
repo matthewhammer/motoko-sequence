@@ -1,21 +1,19 @@
+import Buffer "mo:base/Buffer";
+import Char "mo:base/Char";
 import Debug "mo:base/Debug";
 import Hash "mo:base/Hash";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
-import Char "mo:base/Char";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Buffer "mo:base/Buffer";
-
-import Iter "mo:base/Iter";
-import IterExt "IterExt";
-
 import Trie "mo:base/Trie";
-import TrieExt "TrieExt";
 
 import Db "mo:crud/Database";
 
-import Sequence "Sequence";
-import Texts "Text";
+import Sequence "../../src/Sequence";
+import Texts "../../src/Text";
+import TrieExt "../../src/TrieExt";
+import IterExt "../../src/IterExt";
 
 module {
 
@@ -54,7 +52,7 @@ module {
   public type SearchResults = Sequence.Sequence<SearchResult>;
 
   // stores a database of text files, with keyword search
-  public class BigSearch() {
+  public class Search() {
 
     var count = 0;
 
