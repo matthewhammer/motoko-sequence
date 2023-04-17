@@ -21,12 +21,12 @@ jobs:
         set -x
         dfx cache install
         dfx start --background
-        dfx canister --no-wallet create Search
+        dfx canister create Search
         dfx build Search
-        dfx deploy --no-wallet Search
-        dfx canister --no-wallet create UnitTest
+        dfx deploy Search
+        dfx canister create UnitTest
         dfx build UnitTest
-        dfx deploy --no-wallet UnitTest
+        dfx deploy UnitTest
         dfx canister call UnitTest selfTest
     - name: "docs"
       run: /home/runner/.cache/dfinity/versions/$DFX_VERSION/mo-doc
