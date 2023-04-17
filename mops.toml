@@ -1,0 +1,5 @@
+[dependencies]
+base = "0.7.6"
+
+[dev-dependencies]
+crud = "https://github.com/matthewhammer/motoko-crud"

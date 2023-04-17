@@ -15,7 +15,7 @@ jobs:
       run: |      
         echo y | DFX_VERSION=$DFX_VERSION bash -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
         echo "/home/runner/bin" >> $GITHUB_PATH
-        ./scripts/vessel-install.sh
+        npm i -g ic-mops
     - name: Build
       run: |
         set -x
