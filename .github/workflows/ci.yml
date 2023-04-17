@@ -20,7 +20,7 @@ jobs:
       run: |
         set -x
         dfx cache install
-        dfx start --background --no-artificial-delay
+        dfx start --background
         dfx canister --no-wallet create Search
         dfx build Search
         dfx deploy --no-wallet Search
