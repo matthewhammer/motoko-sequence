@@ -9,7 +9,7 @@
   },
   "defaults": {
     "build": {
-      "packtool": "vessel --package-set example-package-set.dhall sources",
+      "packtool": "mops sources",
       "output": "canisters/"
     },
     "start": {

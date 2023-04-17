@@ -8,25 +8,25 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      DFX_VERSION: 0.7.2
+      DFX_VERSION: 0.13.1
     steps:
     - uses: actions/checkout@v2
     - name: Install
       run: |      
         echo y | DFX_VERSION=$DFX_VERSION bash -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
         echo "/home/runner/bin" >> $GITHUB_PATH
-        ./scripts/vessel-install.sh
+        npm i -g ic-mops
     - name: Build
       run: |
         set -x
         dfx cache install
-        dfx start --background --no-artificial-delay
-        dfx canister --no-wallet create Search
+        dfx start --background
+        dfx canister create Search
         dfx build Search
-        dfx deploy --no-wallet Search
-        dfx canister --no-wallet create UnitTest
+        dfx deploy Search
+        dfx canister create UnitTest
         dfx build UnitTest
-        dfx deploy --no-wallet UnitTest
+        dfx deploy UnitTest
         dfx canister call UnitTest selfTest
     - name: "docs"
       run: /home/runner/.cache/dfinity/versions/$DFX_VERSION/mo-doc
